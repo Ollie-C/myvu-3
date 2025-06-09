@@ -3,7 +3,7 @@ import {
   type SearchResponse,
   movieSchema,
   type Movie,
-} from '../types/tmdb';
+} from '../../types/tmdb';
 
 // TMDB API configuration
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;

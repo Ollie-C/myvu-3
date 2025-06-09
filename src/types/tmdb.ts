@@ -18,6 +18,7 @@ export const movieSchema = z.object({
       })
     )
     .optional(),
+  rating: z.number().nullable().optional(),
 });
 
 export const searchResponseSchema = z.object({
