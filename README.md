@@ -1,53 +1,34 @@
 # MyVu
 
-A React application to search and discover movies using the TMDB API.
+A fast, modern React app to search, rate, and rank movies and games using TMDB and RAWG APIs.
 
-## Technologies Used
+## Tech Stack
 
-- React 19
+- React 19 (with Vite)
 - TypeScript
-- Vite
 - Tailwind CSS
-- Tanstack Query
-- Supabase
-- Zod
-- Typesense
+- TanStack Query (data fetching & caching)
+- Supabase (auth, database, storage)
+- Zod (validation)
+- Typesense (instant search)
+- RAWG API (games)
+- TMDB API (movies)
+- Express.js
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js 18+ or Bun
-- TMDB API Key (get it from [https://www.themoviedb.org/settings/api](https://www.themoviedb.org/settings/api))
+- TMDB API Key: [https://www.themoviedb.org/settings/api](https://www.themoviedb.org/settings/api)
+- RAWG API Key: [https://rawg.io/apidocs](https://rawg.io/apidocs)
 
 ### Setup
 
 1. Clone the repository
 2. Install dependencies:
-   ```
+   ```bash
    npm install
    # or
    bun install
    ```
-3. Create a `.env` file in the root directory with your TMDB API key:
-   ```
-   VITE_TMDB_API_KEY=your_tmdb_api_key_here
-   ```
-4. Start the development server:
-   ```
-   npm run dev
-   # or
-   bun dev
-   ```
-
-## Features
-
-- Search for movies using the TMDB API
-- Display movie posters in a responsive grid
-- Settings button (functionality coming soon)
-
-## Project Structure
-
-- `src/components`: React components
-- `src/services`: API services
-- `src/types`: TypeScript types
