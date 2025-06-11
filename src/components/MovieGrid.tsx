@@ -1,8 +1,7 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useRef } from 'react';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import type { Movie } from '../types/tmdb';
-import { searchMovies, getPosterUrl } from '../services/tmdb/tmdbApi';
+import { searchMovies } from '../services/tmdb/tmdbApi';
 import {
   getWatchedMovies,
   addToWatched,
@@ -13,22 +12,39 @@ import {
   addToWatchlist,
   removeFromWatchlist,
 } from '../services/movieWatchlist';
-import { BoxRating } from './BoxRating';
+import { VersusMode } from './VersusMode';
+import { updateMovieRating } from '../services/watchedMovies';
+import { MovieCard } from './MovieCard';
 
 interface MovieGridProps {
   searchQuery: string;
   showWatchlist: boolean;
   onMovieAdded?: () => void;
+  rankingMode: string | null;
 }
 
 export function MovieGrid({
   searchQuery,
   showWatchlist,
   onMovieAdded,
+  rankingMode,
 }: MovieGridProps) {
   const queryClient = useQueryClient();
+  const [ratingMovieId, setRatingMovieId] = useState<number | null>(null);
+  const ratingInputRef = useRef<HTMLInputElement | null>(null);
+  const hasSetInitialValue = useRef<boolean>(false);
+  const [showVersusMode, setShowVersusMode] = useState(false);
 
   const isShowingSearchResults = searchQuery.trim().length > 0;
+
+  // Handle ranking mode changes
+  React.useEffect(() => {
+    if (rankingMode === 'versus' && !isShowingSearchResults && !showWatchlist) {
+      setShowVersusMode(true);
+    } else {
+      setShowVersusMode(false);
+    }
+  }, [rankingMode, isShowingSearchResults, showWatchlist]);
 
   const { data: searchResults } = useQuery({
     queryKey: ['movies', searchQuery],
@@ -82,6 +98,21 @@ export function MovieGrid({
     },
   });
 
+  const ratingMutation = useMutation({
+    mutationFn: async ({
+      movieId,
+      rating,
+    }: {
+      movieId: number;
+      rating: number;
+    }) => {
+      await updateMovieRating(movieId, rating);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['watchedMovies'] });
+    },
+  });
+
   const handleAddToWatched = async (movie: Movie, e: React.MouseEvent) => {
     e.preventDefault();
     await addWatchedMutation.mutateAsync(movie);
@@ -114,6 +145,39 @@ export function MovieGrid({
     await addWatchedMutation.mutateAsync(movie);
   };
 
+  const handleMovieClick = (movie: Movie, e: React.MouseEvent) => {
+    if (rankingMode === 'manual' && isWatchedList) {
+      e.preventDefault();
+      setRatingMovieId(movie.id);
+      hasSetInitialValue.current = false; // Reset flag for new movie
+      // Set initial value in the input when it renders
+      setTimeout(() => {
+        if (ratingInputRef.current && !hasSetInitialValue.current) {
+          ratingInputRef.current.value = (movie.rating || 5).toString();
+          hasSetInitialValue.current = true;
+        }
+      }, 0);
+    }
+    // If not in manual ranking mode, let the Link handle the navigation
+  };
+
+  const handleQuickRating = async (movieId: number, rating: number) => {
+    await ratingMutation.mutateAsync({ movieId, rating });
+    setRatingMovieId(null);
+  };
+
+  const handleRatingSave = (movieId: number) => {
+    const inputValue = ratingInputRef.current?.value;
+    const rating = parseFloat(inputValue || '5');
+    const clampedRating = Math.max(0, Math.min(10, rating));
+    handleQuickRating(movieId, clampedRating);
+  };
+
+  const handleRatingCancel = () => {
+    setRatingMovieId(null);
+    hasSetInitialValue.current = false; // Reset flag when canceling
+  };
+
   let movies: Movie[] = [];
   let isWatchedList = false;
   let isWatchlist = false;
@@ -127,7 +191,13 @@ export function MovieGrid({
     movies = watchedMovies || [];
     isWatchedList = true;
   }
-  console.log('movies', movies);
+
+  // Show versus mode if enabled
+  if (showVersusMode) {
+    return (
+      <VersusMode movies={movies} onClose={() => setShowVersusMode(false)} />
+    );
+  }
 
   if (movies.length === 0) {
     return (
@@ -144,73 +214,25 @@ export function MovieGrid({
   }
 
   return (
-    <div className='grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-3'>
+    <div className='grid grid-cols-5 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-9 xl:grid-cols-12 gap-2'>
       {movies.map((movie, index) => (
-        <div key={movie.id} className='flex flex-col'>
-          {isWatchedList && (
-            <span className='text-xs text-gray-500 mb-1 text-center font-mono'>
-              {index + 1}
-            </span>
-          )}
-          <Link
-            to={`/movie/${movie.id}`}
-            className='bg-white border border-gray-300 hover:border-black transition-colors group relative'>
-            <div className='relative pb-[150%]'>
-              <img
-                src={getPosterUrl(movie.poster_path)}
-                alt={`${movie.title} poster`}
-                className='absolute inset-0 w-full h-full object-cover'
-              />
-
-              <div className='absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-end justify-start p-2 gap-1'>
-                {isWatchedList ? (
-                  <button
-                    onClick={(e) => handleRemoveFromWatched(movie.id, e)}
-                    className='bg-white text-black px-2 py-1 text-xs border border-black hover:bg-gray-100 cursor-pointer'>
-                    Remove
-                  </button>
-                ) : isWatchlist ? (
-                  <>
-                    <button
-                      onClick={(e) => handleRemoveFromWatchlist(movie.id, e)}
-                      className='bg-white text-black px-2 py-1 text-xs border border-black hover:bg-gray-100 cursor-pointer'>
-                      Remove
-                    </button>
-                    <button
-                      onClick={(e) => handleMoveToWatched(movie, e)}
-                      className='bg-white text-black px-2 py-1 text-xs border border-black hover:bg-gray-100 cursor-pointer'>
-                      Watched
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      onClick={(e) => handleAddToWatchlist(movie, e)}
-                      className='bg-white text-black px-2 py-1 text-xs border border-black hover:bg-gray-100 cursor-pointer'>
-                      Watchlist
-                    </button>
-                    <button
-                      onClick={(e) => handleAddToWatched(movie, e)}
-                      className='bg-white text-black px-2 py-1 text-xs border border-black hover:bg-gray-100 cursor-pointer'>
-                      Watched
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-            <div className='p-2'>
-              {isWatchedList && movie.rating && (
-                <div className='absolute bottom-2 right-2'>
-                  <BoxRating rating={movie.rating} />
-                </div>
-              )}
-              <p className='text-xs text-gray-600 truncate'>{movie.title}</p>
-              <p className='text-xs text-gray-500'>
-                {movie.release_date?.split('-')[0] || 'Unknown'}
-              </p>
-            </div>
-          </Link>
-        </div>
+        <MovieCard
+          key={movie.id}
+          movie={movie}
+          index={index}
+          isWatchedList={isWatchedList}
+          isWatchlist={isWatchlist}
+          ratingMovieId={ratingMovieId}
+          ratingInputRef={ratingInputRef}
+          onMovieClick={handleMovieClick}
+          onRemoveFromWatched={handleRemoveFromWatched}
+          onRemoveFromWatchlist={handleRemoveFromWatchlist}
+          onMoveToWatched={handleMoveToWatched}
+          onAddToWatchlist={handleAddToWatchlist}
+          onAddToWatched={handleAddToWatched}
+          onRatingCancel={handleRatingCancel}
+          onRatingSave={handleRatingSave}
+        />
       ))}
     </div>
   );

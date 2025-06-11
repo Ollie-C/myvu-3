@@ -3,6 +3,10 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      fontFamily: {
+        mono: ['VT323', 'monospace'],
+        retro: ['VT323', 'monospace'],
+      },
       colors: {
         primary: {
           50: '#f8f8f8',

@@ -3,10 +3,12 @@ import { Header } from '../components/Header';
 import { Sidebar } from '../components/Sidebar';
 import { MovieGrid } from '../components/MovieGrid';
 import { SecondaryHeader } from '../components/SecondaryHeader';
+import { RankingButton } from '../components/RankingButton';
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showWatchlist, setShowWatchlist] = useState(false);
+  const [rankingMode, setRankingMode] = useState<string | null>(null);
 
   const handleSearch = useCallback((query: string) => {
     setSearchQuery(query);
@@ -19,6 +21,10 @@ export default function HomePage() {
   const handleMovieAdded = useCallback(() => {
     setSearchQuery('');
   }, []);
+
+  const handleRankingModeChange = (mode: string | null) => {
+    setRankingMode(mode);
+  };
 
   return (
     <div className='min-h-screen bg-white text-black flex flex-col md:flex-row'>
@@ -34,9 +40,15 @@ export default function HomePage() {
             searchQuery={searchQuery}
             showWatchlist={showWatchlist}
             onMovieAdded={handleMovieAdded}
+            rankingMode={rankingMode}
           />
         </main>
       </div>
+
+      <RankingButton
+        onRankingModeChange={handleRankingModeChange}
+        currentMode={rankingMode}
+      />
     </div>
   );
 }

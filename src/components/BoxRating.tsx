@@ -10,7 +10,7 @@ export function BoxRating({ rating, className = '' }: BoxRatingProps) {
 
   return (
     <div
-      className={`flex  gap-0.5 p-1 bg-white backdrop-blur-sm ${className} h-full`}>
+      className={`flex justify-center gap-0.5 p-1 bg-white backdrop-blur-sm ${className} h-full`}>
       {Array.from({ length: maxRating }, (_, index) => {
         const boxNumber = index + 1;
         let boxOpacity = 0;
@@ -27,7 +27,7 @@ export function BoxRating({ rating, className = '' }: BoxRatingProps) {
         return (
           <div
             key={boxNumber}
-            className='w-1.5 h-1.5 border border-black'
+            className='w-1.5 h-2 border border-black'
             style={{
               backgroundColor:
                 boxOpacity > 0 ? `rgba(0, 0, 0, ${boxOpacity})` : 'transparent',

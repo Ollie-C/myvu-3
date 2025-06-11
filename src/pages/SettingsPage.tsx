@@ -12,12 +12,12 @@ export default function SettingsPage() {
         <Header hideSearch={true} />
         <main className='flex-1 p-4'>
           <div className='max-w-md mx-auto mt-8'>
-            <h1 className='text-2xl font-bold mb-8'>Settings</h1>
+            <h1 className='text-2xl font-bold mb-8 font-retro'>Settings</h1>
 
             <div className='space-y-4'>
               <button
                 onClick={() => signOut()}
-                className='w-full text-left p-3 border border-black hover:bg-gray-100'>
+                className='w-full text-left p-3 border border-black hover:bg-gray-100 font-retro text-xs'>
                 Sign Out
               </button>
             </div>

@@ -54,14 +54,14 @@ export function Navigation() {
 
   return (
     <div className='flex items-center gap-6'>
-      <Link to='/' className='text-xl font-bold text-black'>
+      <Link to='/' className='text-2xl font-bold text-black font-retro'>
         MYVU
       </Link>
 
       <div className='relative' ref={dropdownRef}>
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className='flex items-center gap-2 px-3 py-2 border-none bg-white hover:bg-gray-100 text-sm cursor-pointer'>
+          className='flex items-center gap-2 px-3 py-2 border-none bg-white hover:bg-gray-100 text-sm cursor-pointer font-retro'>
           <span>{getCurrentLabel()}</span>
           <svg
             className={`w-4 h-4 transition-transform ${
@@ -86,7 +86,7 @@ export function Navigation() {
                 key={item.path}
                 to={item.path}
                 onClick={() => setIsOpen(false)}
-                className={`block px-3 py-2 text-sm hover:bg-gray-100 ${
+                className={`block px-3 py-2 text-sm hover:bg-gray-100 font-retro ${
                   isActive(item.path) ? 'bg-gray-100 font-medium' : ''
                 }`}>
                 {item.label}
