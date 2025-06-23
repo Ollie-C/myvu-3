@@ -3,16 +3,22 @@
 A fast, modern React app to search, rate, and rank movies and games using TMDB and RAWG APIs.
 
 ## Tech Stack
-
+MVP: 
 - React 19 (with Vite)
 - TypeScript
-- Tailwind CSS
+- Tailwind CSS and a splash of custom Sass
 - TanStack Query (data fetching & caching)
 - Supabase (auth, database, storage)
 - Zod (validation)
-- Typesense (instant search)
+- Zustand
+- Motion
 - RAWG API (games)
 - TMDB API (movies)
+- Sentry
+- Posthog
+
+Later:
+- Typesense (instant search)
 - Express.js
 
 ## Getting Started
